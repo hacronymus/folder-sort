@@ -1,4 +1,6 @@
-﻿param ( $fileFolder)
+﻿# Mean Girls branch to handle specific files related to mean-girls sorting.
+
+param ( $fileFolder)
 
 $videoFolder = 'D:\d3 projects\meangirls_BWAY\objects\VideoFile'
 $folderArray = @($null)*1000
