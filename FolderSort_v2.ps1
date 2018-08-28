@@ -21,9 +21,17 @@ $fileList = Get-ChildItem -Path $fileFolder
 for($h = 0; $h -ne $folderlist.Length; $h++) {
     
     $split = $folderList[$h]
+	if($split[3] = "_") {
+		$folderSplit = $split.Split("_")
+		}
+	elseif ($split[3] = " ") {
+		$folderSplit = $split.Split(" ")
+		}
+	elseif ($split.Length = 3) {
+		$folderSplit = $split
+		}
+	else {write-host "Folder $split is missing folder number or formatted incorectly.  Skipping Folder" -ForegroundColor Red}
 
-    $folderSplit = $split.Split("_")
- 
    try { $folderArray[$folderSplit[0]] = $split }
    catch { write-host "Folder $split is missing folder number or formatted incorectly.  Skipping Folder" -ForegroundColor Red }
        # write-host($folderSplit[0])
