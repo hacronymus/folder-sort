@@ -1,31 +1,51 @@
-﻿param ( $fileFolder)
+﻿param ( $fileFolder, $videoFolder)
 
-$videoFolder = 'D:\d3 projects\meangirls_BWAY\objects\VideoFile'
+$DebugPreference = "Silently Continue"
+
+#$videoFolder = 'D:\d3 projects\meangirls_BWAY\objects\VideoFile'
 $folderArray = @($null)*1000
-$folderList = Get-ChildItem -Path $videoFolder -Name
+
 
 
 if (!$fileFolder) {
 
-    write-host("Enter Folder Path:")
+    write-host("Enter File Folder Path:")
     $fileFolder = Read-Host
 
 }
+if (!$videoFolder) {
 
+    write-host("Enter Destination Folder Path:")
+    $videoFolder = Read-Host
 
+}
+
+$folderList = Get-ChildItem -Path $videoFolder -Name
 $fileList = Get-ChildItem -Path $fileFolder
 
 
 for($h = 0; $h -ne $folderlist.Length; $h++) {
     
     $split = $folderList[$h]
+	if($split[3] -eq "_") {
+		$folderSplit = $split.Split("_")
+		}
+	elseif ($split[3] -eq " ") {
+		$folderSplit = $split.Split(" ")
+		}
+	elseif ($split.Length -eq 3) {
+		$folderSplit[0] = $split
+		}
+	else {
+		write-host "Folder $split is missing folder number or formatted incorectly.  Skipping Folder" -ForegroundColor Red
+		$folderSplit = "null"
+	}
 
-    $folderSplit = $split.Split("_")
- 
    try { $folderArray[$folderSplit[0]] = $split }
    catch { write-host "Folder $split is missing folder number or formatted incorectly.  Skipping Folder" -ForegroundColor Red }
-       # write-host($folderSplit[0])
-       # write-host($split)
+       write-debug($folderSplit[0])
+       write-debug($split)
+	   Write-Debug($split.Length)
 
 
 
@@ -47,7 +67,7 @@ for($i = 0; $i -ne $filelist.Length; $i++) {
     $dest = $videoFolder + '\' + $folderArray[$fileSplit[0]]
     $destFileList = Get-ChildItem -Path $dest -Name
 
-    # Write-Host ($dest)
+    Write-Debug ($dest)
 
     if ($folderArray[$fileSplit[0]]) {
 
