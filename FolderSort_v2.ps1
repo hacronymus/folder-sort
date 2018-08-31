@@ -1,10 +1,16 @@
-﻿param ( $fileFolder, $videoFolder)
+﻿#Branch for Mean Girls Broadway
+#Adds functionality to handle headshot files and sort them into the appropriate folder
+#Headshot files don't contain a folder number but are consistently named with "headshot" at the beginning
+#New functionality handles folder 200 naming convention
+
+param ( $fileFolder, $videoFolder)
 
 $DebugPreference = "Silently Continue"
+#$DebugPreference = "Continue"
 
-#$videoFolder = 'D:\d3 projects\meangirls_BWAY\objects\VideoFile'
+$videoFolder = 'D:\d3 projects\meangirls_BWAY\objects\VideoFile'
 $folderArray = @($null)*1000
-
+$proceed = "N"
 
 
 if (!$fileFolder) {
@@ -50,91 +56,67 @@ for($h = 0; $h -ne $folderlist.Length; $h++) {
 
 
 }
+Function Folder-Sort {
+		
+	param($proceedCase)
 
-for($i = 0; $i -ne $filelist.Length; $i++) {
-    
-    $split = $fileList[$i].Name
+	if ($proceedCase -eq "Y") {Write-Host "Copying Files..."}
 
-    $fileSplit = $split.Split("_")
+	foreach ($file in $fileList) {
 
-    
- 
-    
 
-   try { 
-    if([convert]::ToInt32($fileSplit[0]) ){}
-   
-    $dest = $videoFolder + '\' + $folderArray[$fileSplit[0]]
-    $destFileList = Get-ChildItem -Path $dest -Name
+		$split = $file.Name
 
-    Write-Debug ($dest)
+		$fileSplit = $split.Split("_")
 
-    if ($folderArray[$fileSplit[0]]) {
+	
+	   try { 
+		
+		   if($fileSplit[0] -eq "Headshots"){
+			   $folder = $folderArray[200]
+		   }
+		   elseif([convert]::ToInt32($fileSplit[0]) ){ $folder = $folderArray[$fileSplit[0]]}
+		   else {$folder = $false}
+		
+		$dest = $videoFolder + '\' + $folder
+		$destFileList = Get-ChildItem -Path $dest -Name
 
-        Write-Host ("Put File $split into Folder", $folderArray[$fileSplit[0]])
+		Write-Debug ($dest)
 
-        if ($destFileList.Contains($split)) {write-host ("File Already Exists- Change Version Number!") -ForegroundColor Red}
-        else {
+		if ($folder) {
+
+			Write-Host ("Put File $split into Folder", $folder)
+
+			if ($destFileList.Contains($split)) {write-host ("File Already Exists- Change Version Number!") -ForegroundColor Red}
+			else {
     
         
-         # $fileList[$i] | Copy-Item -Destination $dest
-           write-host("Will Succeed") -ForegroundColor Green
+			 if($proceedCase -eq "Y"){
+				$file | Copy-Item -Destination $dest
+				 Write-Host("Success") -ForegroundColor Green
+				 }
+			else {
+			   write-host("Will Succeed") -ForegroundColor Green
+			}
     
-    
-        }
-       }
-    else { write-host "Folder does not exist for file $split" -ForegroundColor Magenta }
-    }
-    catch { write-host "File $Split is missing folder number or formatted incorectly.  Skipping File" -ForegroundColor DarkMagenta }
+			}
+		   }
+		else { write-host "Folder does not exist for file $split" -ForegroundColor Magenta }
+		}
+		catch { write-host "File $Split is missing folder number or formatted incorectly.  Skipping File" -ForegroundColor DarkMagenta }
+	}
+
+	}
+
+Folder-Sort -proceedCase $false
 
 
-
-}
 $proceed = Read-Host -Prompt "Proceed? Y/N"
+$proceed.ToUpper()
 
-if ($proceed -eq "Y" -or $proceed -eq "y") {
-
-    write-host("Copying Files")
-
-for($i = 0; $i -ne $filelist.Length; $i++) {
-    
-    $split = $fileList[$i].Name
-
-    $fileSplit = $split.Split("_")
-
-    
- 
-   try { 
-
-    if([convert]::ToInt32($fileSplit[0])){}
-
-    $dest = $videoFolder + '\' + $folderArray[$fileSplit[0]]
-    $destFileList = Get-ChildItem -Path $dest -Name
-
-   # Write-Host ($dest)
-   if($folderArray[$fileSplit[0]]) {
-
-   Write-Host ("Putting File $split into Folder", $folderArray[$fileSplit[0]])
-
-    if ($destFileList.Contains($split)) {write-host ("File Already Exists- Change Version Number!") -ForegroundColor Red}
-    else {
-    
-        
-        $fileList[$i] | Copy-Item -Destination $dest
-        write-host("Success") -ForegroundColor Green
-    
-    
-    }
-    }
-
-    else { write-host "Folder does not exist for file $split" -ForegroundColor Magenta }
-
-    }
-    catch { write-host "File $Split is missing folder number or formatted incorectly.  Skipping File" -ForegroundColor Red }
+Folder-Sort($proceed)
 
 
-}
-    Read-Host -Prompt "Complete. Press ENTER to quit"
 
 
-}
+	
